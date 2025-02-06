@@ -1,244 +1,628 @@
-import { useEffect, useRef, useState } from "react";
-import { TechIcon } from "./tech-icons";
-import { motion, useAnimation } from "framer-motion";
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion } from 'framer-motion';
+import { TechIcon } from './tech-icons';
 
-interface TechData {
-  name: string;
-  color: string;
-  id: string;
-  orbitSpeed: number;
-  orbitDirection: number;
-  orbitPlane: number;
-}
-
-const techStack: TechData[] = [
-  { name: "React", color: "#61DAFB", id: "react", orbitSpeed: 0.8, orbitDirection: 1, orbitPlane: 0 },
-  { name: "Node.js", color: "#339933", id: "node", orbitSpeed: 0.6, orbitDirection: -1, orbitPlane: Math.PI / 8 },
-  { name: "Python", color: "#3776AB", id: "python", orbitSpeed: 0.9, orbitDirection: 1, orbitPlane: Math.PI / 4 },
-  { name: "JavaScript", color: "#F7DF1E", id: "js", orbitSpeed: 0.7, orbitDirection: -1, orbitPlane: Math.PI / 3 },
-  { name: "TypeScript", color: "#3178C6", id: "ts", orbitSpeed: 0.85, orbitDirection: 1, orbitPlane: Math.PI / 2 },
-  { name: "MongoDB", color: "#47A248", id: "mongo", orbitSpeed: 1.0, orbitDirection: -1, orbitPlane: 2 * Math.PI / 5 },
-  { name: "Docker", color: "#2496ED", id: "docker", orbitSpeed: 0.5, orbitDirection: 1, orbitPlane: 3 * Math.PI / 4 },
-  { name: "Git", color: "#F05032", id: "git", orbitSpeed: 1.1, orbitDirection: -1, orbitPlane: 5 * Math.PI / 7 },
-  { name: "Next.js", color: "#000000", id: "next", orbitSpeed: 0.45, orbitDirection: 1, orbitPlane: Math.PI },
-  { name: "GraphQL", color: "#E535AB", id: "graphql", orbitSpeed: 1.2, orbitDirection: -1, orbitPlane: 8 * Math.PI / 9 },
-  { name: "AWS", color: "#FF9900", id: "aws", orbitSpeed: 0.4, orbitDirection: 1, orbitPlane: 4 * Math.PI / 3 },
-  { name: "Kubernetes", color: "#326CE5", id: "k8s", orbitSpeed: 0.95, orbitDirection: -1, orbitPlane: 3 * Math.PI / 2 },
-  { name: "Redis", color: "#DC382D", id: "redis", orbitSpeed: 0.75, orbitDirection: 1, orbitPlane: 5 * Math.PI / 3 },
-  { name: "Vue.js", color: "#4FC08D", id: "vue", orbitSpeed: 1.05, orbitDirection: -1, orbitPlane: 11 * Math.PI / 7 },
-  { name: "Angular", color: "#DD0031", id: "angular", orbitSpeed: 0.65, orbitDirection: 1, orbitPlane: 2 * Math.PI },
-  { name: "Rust", color: "#000000", id: "rust", orbitSpeed: 0.88, orbitDirection: -1, orbitPlane: Math.PI / 5 },
-  { name: "Firebase", color: "#FFCA28", id: "firebase", orbitSpeed: 0.55, orbitDirection: 1, orbitPlane: 7 * Math.PI / 8 },
-  { name: "PostgreSQL", color: "#336791", id: "postgres", orbitSpeed: 0.92, orbitDirection: -1, orbitPlane: 13 * Math.PI / 9 },
-  { name: "NestJS", color: "#E0234E", id: "nestjs", orbitSpeed: 0.78, orbitDirection: 1, orbitPlane: 17 * Math.PI / 10 },
-  { name: "Gatsby", color: "#663399", id: "gatsby", orbitSpeed: 0.62, orbitDirection: -1, orbitPlane: 19 * Math.PI / 11 },
-  { name: "Webpack", color: "#8DD6F9", id: "webpack", orbitSpeed: 0.82, orbitDirection: 1, orbitPlane: 23 * Math.PI / 12 },
-  { name: "Svelte", color: "#FF3E00", id: "svelte", orbitSpeed: 0.98, orbitDirection: -1, orbitPlane: 14 * Math.PI / 8 },
-  { name: "Tailwind CSS", color: "#06B6D4", id: "tailwind", orbitSpeed: 0.72, orbitDirection: 1, orbitPlane: 25 * Math.PI / 13 },
-  { name: "Material UI", color: "#0081CB", id: "mui", orbitSpeed: 0.86, orbitDirection: -1, orbitPlane: 29 * Math.PI / 14 },
-  { name: "Redux", color: "#764ABC", id: "redux", orbitSpeed: 0.68, orbitDirection: 1, orbitPlane: 31 * Math.PI / 15 },
-  { name: "Jest", color: "#C21325", id: "jest", orbitSpeed: 0.94, orbitDirection: -1, orbitPlane: 35 * Math.PI / 16 },
-  { name: "C#", color: "#178600", id: "csharp", orbitSpeed: 0.7, orbitDirection: 1, orbitPlane: Math.PI / 12 },
-  { name: "Java", color: "#007396", id: "java", orbitSpeed: 0.8, orbitDirection: -1, orbitPlane: 2 * Math.PI / 7 },
-  { name: "PHP", color: "#777BB4", id: "php", orbitSpeed: 0.6, orbitDirection: 1, orbitPlane: 9 * Math.PI / 13 },
-  { name: "Swift", color: "#F05138", id: "swift", orbitSpeed: 0.9, orbitDirection: -1, orbitPlane: 15 * Math.PI / 8 },
-  { name: "Go", color: "#00ADD8", id: "go", orbitSpeed: 0.5, orbitDirection: 1, orbitPlane: 21 * Math.PI / 11 },
-  { name: "Kotlin", color: "#A97BFF", id: "kotlin", orbitSpeed: 0.85, orbitDirection: -1, orbitPlane: 27 * Math.PI / 14 },
-  { name: "Flutter", color: "#02569B", id: "flutter", orbitSpeed: 0.75, orbitDirection: 1, orbitPlane: 33 * Math.PI / 17 },
-  { name: "React Native", color: "#61DAFB", id: "reactnative", orbitSpeed: 0.95, orbitDirection: -1, orbitPlane: 37 * Math.PI / 19 },
-  { name: "Unity", color: "#222C37", id: "unity", orbitSpeed: 0.65, orbitDirection: 1, orbitPlane: 41 * Math.PI / 20 },
-  { name: "Unreal Engine", color: "#0CAFFF", id: "unreal", orbitSpeed: 0.88, orbitDirection: -1, orbitPlane: 43 * Math.PI / 21 },
+// Enhanced Tech Icon List with categories and special effects
+const TECH_ICONS = [
+  { name: 'React', color: '#61DAFB', points: 10, category: 'frontend', special: 'shield' },
+  { name: 'Node.js', color: '#68A063', points: 10, category: 'backend', special: 'speedBoost' },
+  { name: 'Python', color: '#3776AB', points: 10, category: 'backend', special: 'multiShot' },
+  { name: 'JavaScript', color: '#F7DF1E', points: 15, category: 'frontend', special: 'pointsBoost' },
+  { name: 'TypeScript', color: '#3178C6', points: 15, category: 'frontend', special: 'shield' },
+  { name: 'MongoDB', color: '#47A248', points: 15, category: 'database', special: 'freeze' },
+  { name: 'Docker', color: '#2496ED', points: 20, category: 'devops', special: 'clearScreen' },
+  { name: 'Next.js', color: '#000000', points: 20, category: 'frontend', special: 'pointsBoost' },
+  { name: 'GraphQL', color: '#E10098', points: 20, category: 'backend', special: 'multiShot' },
+  { name: 'Tailwind CSS', color: '#06B6D4', points: 15, category: 'frontend', special: 'shield' },
+  { name: 'AWS', color: '#FF9900', points: 25, category: 'cloud', special: 'clearScreen' },
+  { name: 'Kubernetes', color: '#326CE5', points: 25, category: 'devops', special: 'freeze' },
+  { name: 'Redis', color: '#DC382D', points: 20, category: 'database', special: 'speedBoost' },
+  { name: 'Vue.js', color: '#4FC08D', points: 15, category: 'frontend', special: 'multiShot' },
+  { name: 'Angular', color: '#DD0031', points: 20, category: 'frontend', special: 'shield' },
+  { name: 'Rust', color: '#000000', points: 25, category: 'systems', special: 'clearScreen' },
+  { name: 'Go', color: '#00ADD8', points: 20, category: 'backend', special: 'speedBoost' },
+  { name: 'Swift', color: '#F05138', points: 20, category: 'mobile', special: 'multiShot' },
+  { name: 'Kotlin', color: '#7F52FF', points: 20, category: 'mobile', special: 'pointsBoost' },
+  { name: 'Flutter', color: '#02569B', points: 25, category: 'mobile', special: 'freeze' }
 ];
 
-export function TechGlobe() {
-  const [isHovered, setIsHovered] = useState(false);
-  const [activeTech, setActiveTech] = useState<string | null>(null);
-  const sphereRef = useRef<HTMLDivElement>(null);
+// Interfaces
+interface FallingIcon {
+  id: string;
+  name: string;
+  color: string;
+  points: number;
+  category: string;
+  special: string;
+  x: number;
+  y: number;
+  speed: number;
+  angle: number;
+  scale: number;
+}
+
+interface PowerUp {
+  type: string;
+  duration: number;
+  startTime: number;
+}
+
+interface GameState {
+  score: number;
+  multiplier: number;
+  timeLeft: number;
+  lives: number;
+  combo: number;
+  powerUps: PowerUp[];
+  difficulty: number;
+  highScore: number;
+}
+
+interface CannonState {
+  x: number;
+  angle: number;
+  width: number;
+  heat: number;
+  cooldownTime: number;
+}
+
+export function TechCannonBlast() {
+  // Enhanced Game State
+  const [gameState, setGameState] = useState<GameState>({
+    score: 0,
+    multiplier: 1,
+    timeLeft: 90,
+    lives: 3,
+    combo: 0,
+    powerUps: [],
+    difficulty: 1,
+    highScore: parseInt(localStorage.getItem('techCannonHighScore') || '0')
+  });
+
+  const [fallingIcons, setFallingIcons] = useState<FallingIcon[]>([]);
+  const [cannonState, setCannonState] = useState<CannonState>({
+    x: 200,
+    angle: 0,
+    width: 100,
+    heat: 0,
+    cooldownTime: 0
+  });
+  const [cannonballs, setCannonballs] = useState<{x: number, y: number, power?: string}[]>([]);
+  const [particles, setParticles] = useState<{x: number, y: number, color: string, size: number}[]>([]);
+
+  // Refs and Game State
+  const gameAreaRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>();
-  const [baseSpeed, setBaseSpeed] = useState(0.0002);
-  const [rotation, setRotation] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const gridControls = useAnimation();
-  const gridYControls = useAnimation();
+  const lastShotTime = useRef<number>(0);
 
+  // Sound Effects (using Web Audio API)
+  const audioContext = useRef<AudioContext>();
+  
   useEffect(() => {
-    setBaseSpeed(isHovered ? 0.001 : 0.0002);
-  }, [isHovered]);
+    audioContext.current = new AudioContext();
+    return () => {
+      audioContext.current?.close();
+    };
+  }, []);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    setDragStart({ x: e.clientX, y: e.clientY });
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging && sphereRef.current) {
-      const deltaX = e.clientX - dragStart.x;
-      const deltaY = e.clientY - dragStart.y;
-
-      setRotation((prev) => ({
-        x: prev.x + deltaY * 0.15,
-        y: prev.y + deltaX * 0.15,
-      }));
-
-      setDragStart({ x: e.clientX, y: e.clientY });
+  const playSound = useCallback((type: 'shoot' | 'hit' | 'powerup') => {
+    if (!audioContext.current) return;
+    
+    const oscillator = audioContext.current.createOscillator();
+    const gainNode = audioContext.current.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.current.destination);
+    
+    switch (type) {
+      case 'shoot':
+        oscillator.frequency.setValueAtTime(220, audioContext.current.currentTime);
+        gainNode.gain.setValueAtTime(0.1, audioContext.current.currentTime);
+        break;
+      case 'hit':
+        oscillator.frequency.setValueAtTime(440, audioContext.current.currentTime);
+        gainNode.gain.setValueAtTime(0.05, audioContext.current.currentTime);
+        break;
+      case 'powerup':
+        oscillator.frequency.setValueAtTime(880, audioContext.current.currentTime);
+        gainNode.gain.setValueAtTime(0.08, audioContext.current.currentTime);
+        break;
     }
-  };
+    
+    oscillator.start();
+    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.current.currentTime + 0.5);
+    oscillator.stop(audioContext.current.currentTime + 0.5);
+  }, []);
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
+  // Enhanced Game Loop
+  const gameLoop = useCallback(() => {
+    if (gameState.timeLeft <= 0 || gameState.lives <= 0) {
+      return;
+    }
 
-  const handleMouseLeave = () => {
-    setIsDragging(false);
-    gridControls.start({ rotateZ: 0, transition: { duration: 0.5, type: "spring", stiffness: 100 } });
-    gridYControls.start({ rotateY: 0, transition: { duration: 0.5, type: "spring", stiffness: 100 } });
-  };
+    // Dynamic difficulty adjustment
+    const difficultyMultiplier = Math.min(2, 1 + gameState.score / 10000);
+    
+    // Spawn icons with increasing frequency based on difficulty
+    if (Math.random() < 0.01 * difficultyMultiplier) {
+      const newIcon = generateFallingIcon(difficultyMultiplier);
+      setFallingIcons(prev => [...prev, newIcon]);
+    }
 
-  const handleMouseEnter = () => {
-    gridControls.start({ rotateZ: 360, transition: { duration: 10, repeat: Infinity, ease: "linear" } });
-    gridYControls.start({ rotateY: -360, transition: { duration: 10, repeat: Infinity, ease: "linear" } });
-  };
+    // Update falling icons with physics
+    setFallingIcons(prevIcons => 
+      prevIcons.map(icon => ({
+        ...icon,
+        y: icon.y + icon.speed * 0.3 * difficultyMultiplier,
+        x: icon.x + Math.sin(icon.angle) * 0.5,
+        angle: icon.angle + 0.01,
+        scale: icon.scale + Math.sin(icon.angle) * 0.01
+      })).filter(icon => {
+        if (icon.y >= 600) {
+          // Ensure lives don't go below 0
+          setGameState(prev => ({
+            ...prev,
+            lives: Math.max(0, prev.lives - 1),
+            combo: 0
+          }));
+          return false;
+        }
+        return true;
+      })
+    );
 
-  const calculateIconPositions = (time: number) => {
-    const radius = 180;
-    const positions = techStack.map((tech) => {
-      const angle = time * baseSpeed * tech.orbitSpeed * tech.orbitDirection;
-      const rotationMatrix = [
-        [Math.cos(tech.orbitPlane), 0, Math.sin(tech.orbitPlane)],
-        [0, 1, 0],
-        [-Math.sin(tech.orbitPlane), 0, Math.cos(tech.orbitPlane)],
-      ];
+    // Update cannonballs with physics
+    setCannonballs(prevBalls => 
+      prevBalls
+        .map(ball => ({ 
+          ...ball, 
+          y: ball.y - 10,
+          x: ball.x + (ball.power === 'curve' ? Math.sin(ball.y / 30) * 2 : 0)
+        }))
+        .filter(ball => ball.y > -20)
+    );
 
-      const baseX = Math.cos(angle) * radius;
-      const baseY = Math.sin(angle) * radius;
-      const baseZ = 0;
+    // Update particles
+    setParticles(prevParticles =>
+      prevParticles
+        .map(particle => ({
+          ...particle,
+          size: particle.size * 0.95,
+          y: particle.y + Math.random() * 2 - 1,
+          x: particle.x + Math.random() * 2 - 1
+        }))
+        .filter(particle => particle.size > 0.5)
+    );
 
-      let x = rotationMatrix[0][0] * baseX + rotationMatrix[0][1] * baseY + rotationMatrix[0][2] * baseZ;
-      let y = rotationMatrix[1][0] * baseX + rotationMatrix[1][1] * baseY + rotationMatrix[1][2] * baseZ;
-      let z = rotationMatrix[2][0] * baseX + rotationMatrix[2][1] * baseY + rotationMatrix[2][2] * baseZ;
+    // Collision Detection with Enhanced Effects
+    setFallingIcons(prevIcons => {
+      const remainingIcons = prevIcons.filter(icon => {
+        const isHit = cannonballs.some(ball => 
+          Math.abs(ball.x - icon.x) < 30 && 
+          Math.abs(ball.y - icon.y) < 30
+        );
 
-      const radX = rotation.x * Math.PI / 180;
-      const radY = rotation.y * Math.PI / 180;
+        if (isHit) {
+          // Create particle effects
+          setParticles(prev => [
+            ...prev,
+            ...Array(5).fill(0).map(() => ({
+              x: icon.x,
+              y: icon.y,
+              color: icon.color,
+              size: Math.random() * 5 + 2
+            }))
+          ]);
 
-      const rotatedX = x * Math.cos(radY) - z * Math.sin(radY);
-      const rotatedZ = x * Math.sin(radY) + z * Math.cos(radY);
-      const finalY = y * Math.cos(radX) + rotatedZ * Math.sin(radX);
-      const finalZ = -y * Math.sin(radX) + rotatedZ * Math.cos(radX);
+          // Apply power-ups
+          if (icon.special) {
+            setGameState(prev => ({
+              ...prev,
+              powerUps: [...prev.powerUps, {
+                type: icon.special,
+                duration: 5000,
+                startTime: Date.now()
+              }]
+            }));
+          }
 
-      return { x: rotatedX, y: finalY, z: finalZ, tech };
+          playSound('hit');
+          return false;
+        }
+        return true;
+      });
+
+      // Update score and combo
+      const hitCount = prevIcons.length - remainingIcons.length;
+      if (hitCount > 0) {
+        setGameState(prev => {
+          const newCombo = prev.combo + hitCount;
+          const comboMultiplier = Math.min(3, 1 + newCombo / 10);
+          const points = hitCount * 10 * prev.multiplier * comboMultiplier;
+          
+          return {
+            ...prev,
+            score: prev.score + points,
+            combo: newCombo,
+            multiplier: Math.min(prev.multiplier + 0.1, 3)
+          };
+        });
+      }
+
+      return remainingIcons;
     });
 
-    return positions.sort((a, b) => b.z - a.z);
-  };
+    // Update power-ups
+    setGameState(prev => ({
+      ...prev,
+      powerUps: prev.powerUps.filter(powerUp => 
+        Date.now() - powerUp.startTime < powerUp.duration
+      )
+    }));
 
-  useEffect(() => {
-    let startTime = Date.now();
+    // Cool down cannon
+    setCannonState(prev => ({
+      ...prev,
+      heat: Math.max(0, prev.heat - 0.5),
+      cooldownTime: Math.max(0, prev.cooldownTime - 16)
+    }));
 
-    const animate = () => {
-      const positions = calculateIconPositions(Date.now() - startTime);
-      positions.forEach((pos) => {
-        const element = document.getElementById(`tech-${pos.tech.id}`);
-        if (element) {
-          const scale = Math.max(0.4, (pos.z + 180) / 360);
-          const opacity = Math.max(0.3, (pos.z + 180) / 360);
+    animationRef.current = requestAnimationFrame(gameLoop);
+  }, [gameState.timeLeft, gameState.lives, gameState.score, playSound]);
 
-          element.style.transform = `translate3d(${pos.x}px, ${pos.y}px, ${pos.z}px) scale(${scale})`;
-          element.style.opacity = opacity.toString();
-          element.style.zIndex = Math.round(pos.z).toString();
-        }
-      });
-      animationRef.current = requestAnimationFrame(animate);
+  // Generate Enhanced Falling Icon
+  const generateFallingIcon = useCallback((difficulty: number): FallingIcon => {
+    const techIcon = TECH_ICONS[Math.floor(Math.random() * TECH_ICONS.length)];
+    
+    return {
+      id: `icon-${Math.random().toString(36).substr(2, 9)}`,
+      ...techIcon,
+      x: Math.random() * 380,
+      y: -50,
+      speed: (Math.random() * 2 + 1) * difficulty,
+      angle: Math.random() * Math.PI * 2,
+      scale: 1
+    };
+  }, []);
+
+  // Enhanced Cannon Controls
+  const handleCannonMove = useCallback((e: React.MouseEvent) => {
+    if (gameAreaRef.current) {
+      const rect = gameAreaRef.current.getBoundingClientRect();
+      const newX = e.clientX - rect.left - cannonState.width / 2;
+      const constrainedX = Math.max(0, Math.min(newX, 400 - cannonState.width));
+      
+      setCannonState(prev => ({
+        ...prev,
+        x: constrainedX,
+        angle: Math.min(45, Math.max(-45, (e.clientX - rect.left - 200) / 4))
+      }));
+    }
+  }, []);
+
+  // Enhanced Shooting Mechanics
+  const shootCannonball = useCallback((e: React.MouseEvent) => {
+    if (cannonState.heat >= 100 || cannonState.cooldownTime > 0) return;
+
+    const now = Date.now();
+    if (now - lastShotTime.current < 250) return;
+    lastShotTime.current = now;
+
+    const hasPowerUp = (type: string) => 
+      gameState.powerUps.some(p => p.type === type);
+
+    const baseShot = {
+      x: cannonState.x + cannonState.width / 2,
+      y: 450
     };
 
-    animate();
+    if (hasPowerUp('multiShot')) {
+      setCannonballs(prev => [
+        ...prev,
+        { ...baseShot, power: 'normal' },
+        { ...baseShot, x: baseShot.x - 20, power: 'normal' },
+        { ...baseShot, x: baseShot.x + 20, power: 'normal' }
+      ]);
+    } else {
+      setCannonballs(prev => [...prev, { ...baseShot, power: 'normal' }]);
+    }
+
+    playSound('shoot');
+
+    setCannonState(prev => ({
+      ...prev,
+      heat: prev.heat + 10,
+      cooldownTime: prev.heat >= 90 ? 2000 : 0
+    }));
+  }, [cannonState, gameState.powerUps, playSound]);
+
+  // Initialize Game
+  useEffect(() => {
+    animationRef.current = requestAnimationFrame(gameLoop);
+    
+    const timerInterval = setInterval(() => {
+      setGameState(prev => ({
+        ...prev,
+        timeLeft: prev.timeLeft > 0 ? prev.timeLeft - 1 : 0
+      }));
+    }, 1000);
+
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
+      clearInterval(timerInterval);
     };
-  }, [baseSpeed, rotation]);
+  }, [gameLoop]);
+
+  // Game Over Check
+  useEffect(() => {
+    if (gameState.timeLeft <= 0 || gameState.lives <= 0) {
+      if (gameState.score > gameState.highScore) {
+        localStorage.setItem('techCannonHighScore', gameState.score.toString());
+      }
+    }
+  }, [gameState.timeLeft, gameState.lives, gameState.score, gameState.highScore]);
+
+  // Restart Game
+  const restartGame = () => {
+    setGameState({
+      score: 0,
+      multiplier: 1,
+      timeLeft: 90,
+      lives: 3,
+      combo: 0,
+      powerUps: [],
+      difficulty: 1,
+      highScore: parseInt(localStorage.getItem('techCannonHighScore') || '0')
+    });
+    setFallingIcons([]);
+    setCannonballs([]);
+    setParticles([]);
+    setCannonState({
+      x: 200,
+      angle: 0,
+      width: 100,
+      heat: 0,
+      cooldownTime: 0
+    });
+  };
+
+  // Calculate various game status effects
+  const isOverheated = cannonState.heat >= 100;
+  const isCoolingDown = cannonState.cooldownTime > 0;
+  const activePowerUps = gameState.powerUps.map(p => p.type);
+  const hasShield = activePowerUps.includes('shield');
 
   return (
-    <div
-      className="w-full h-[80vh] flex items-center justify-center relative perspective-1000"
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseLeave}
-      onMouseEnter={handleMouseEnter}
-    >
-      <div
-        ref={sphereRef}
-        className="relative w-[400px] h-[400px] transform-style-preserve-3d cursor-grab active:cursor-grabbing"
+    <div className="flex flex-col items-center gap-4">
+      {/* Game Area */}
+      <div 
+        ref={gameAreaRef}
+        className="relative w-[400px] h-[500px] bg-gradient-to-br from-blue-900 to-purple-900 overflow-hidden rounded-lg shadow-xl cursor-crosshair"
+        onMouseMove={handleCannonMove}
+        onClick={shootCannonball}
       >
-        <motion.div
-          className="absolute inset-0 rounded-full transform-style-preserve-3d"
-          animate={gridControls}
-          style={{ pointerEvents: 'none' }}
-        >
-          {/* Latitude Lines */}
-          {Array.from({ length: 9 }).map((_, i) => { // Corrected length to 9 for 9 lines
-            const fraction = i / 8; // Corrected fraction calculation for 9 lines
-            return (
-              <div
-                key={`lat-${i}`}
-                className="absolute w-full h-full rounded-full"
-                style={{
-                  borderTop: "2px solid rgba(100, 200, 255, 0.9)",
-                  boxShadow: '0 0 5px rgba(100, 200, 255, 0.9)',
-                  transform: `rotateX(${fraction * 180}deg)`,
-                }}
-              />
-            );
-          })}
-          {/* Longitude Lines */}
-          {Array.from({ length: 12 }).map((_, i) => (
-            <motion.div
-              key={`long-${i}`}
-              className="absolute w-full h-full rounded-full"
-              animate={gridYControls}
-              style={{
-                borderLeft: "2px solid rgba(100, 200, 255, 0.9)",
-                boxShadow: '0 0 5px rgba(100, 200, 255, 0.9)',
-                transform: `rotateY(${(i / 12) * 360}deg)`,
-              }}
-            />
-          ))}
-        </motion.div>
+        {/* Particle Effects */}
+        {particles.map((particle, index) => (
+          <motion.div
+            key={`particle-${index}`}
+            className="absolute rounded-full"
+            style={{
+              left: particle.x,
+              top: particle.y,
+              width: particle.size,
+              height: particle.size,
+              backgroundColor: particle.color,
+              opacity: particle.size / 5
+            }}
+            initial={{ scale: 1 }}
+            animate={{ scale: 0 }}
+            transition={{ duration: 0.5 }}
+          />
+        ))}
 
-        {techStack.map((tech) => (
-          <div
-            key={tech.id}
-            id={`tech-${tech.id}`}
-            className="absolute left-1/2 top-1/2 -ml-[32px] -mt-[32px] w-[64px] h-[64px] cursor-pointer"
-            onMouseEnter={() => {
-              setIsHovered(true);
-              setActiveTech(tech.name);
-            }}
-            onMouseLeave={() => {
-              setIsHovered(false);
-              setActiveTech(null);
-            }}
-          >
-            <div className="relative flex items-center justify-center">
-              <TechIcon
-                name={tech.name}
-                size={48}
-                color={tech.color}
-              />
-              {activeTech === tech.name && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="absolute -bottom-12 left-1/2 -translate-x-1/2 bg-gray-800/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap"
-                >
-                  {tech.name}
-                </motion.div>
-              )}
+        {/* Game HUD */}
+        <div className="absolute top-0 left-0 w-full p-4 flex justify-between items-start">
+          <div className="space-y-2">
+            <div className="text-2xl font-bold text-white">
+              Score: {Math.round(gameState.score)}
+            </div>
+            <div className="text-lg text-white">
+              High Score: {Math.round(gameState.highScore)}
             </div>
           </div>
+          
+          <div className="space-y-2 text-right">
+            <div className="text-2xl font-bold text-white">
+              Time: {gameState.timeLeft}s
+            </div>
+            <div className="flex items-center gap-2">
+            {Array.from({ length: Math.max(0, gameState.lives) }).map((_, i) => (
+              <div key={i} className="w-4 h-4 bg-red-500 rounded-full" />
+            ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Power-ups and Status Effects */}
+        <div className="absolute top-20 right-4 space-y-2">
+          {gameState.powerUps.map((powerUp, index) => {
+            const timeLeft = Math.max(0, (powerUp.duration - (Date.now() - powerUp.startTime)) / 1000);
+            return (
+              <div 
+                key={`${powerUp.type}-${index}`}
+                className="bg-white bg-opacity-20 rounded px-2 py-1 text-sm text-white"
+              >
+                {powerUp.type}: {timeLeft.toFixed(1)}s
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Combo and Multiplier Display */}
+        <div className="absolute bottom-24 left-4 space-y-1">
+          <div className="text-lg text-white">
+            Combo: x{gameState.combo}
+          </div>
+          <div className="text-lg text-white">
+            Multiplier: x{gameState.multiplier.toFixed(1)}
+          </div>
+        </div>
+
+        {/* Cannon Heat Meter */}
+        <div className="absolute bottom-20 right-4 w-24 h-3 bg-gray-800 rounded overflow-hidden">
+          <div 
+            className="h-full transition-all duration-100"
+            style={{
+              width: `${cannonState.heat}%`,
+              backgroundColor: isOverheated ? '#ef4444' : '#3b82f6'
+            }}
+          />
+        </div>
+
+        {/* Falling Icons with Enhanced Effects */}
+        {fallingIcons.map(icon => (
+          <motion.div
+            key={icon.id}
+            className="absolute"
+            style={{ 
+              left: icon.x, 
+              top: icon.y,
+              transform: `rotate(${icon.angle}rad) scale(${icon.scale})`
+            }}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: icon.scale }}
+          >
+            <TechIcon 
+              name={icon.name} 
+              color={icon.color} 
+              size={50} 
+            />
+          </motion.div>
         ))}
+
+        {/* Enhanced Cannonballs with Effects */}
+        {cannonballs.map((ball, index) => (
+          <motion.div
+            key={`ball-${index}`}
+            className="absolute rounded-full"
+            style={{
+              width: 10,
+              height: 10,
+              left: ball.x - 5,
+              top: ball.y - 5,
+              backgroundColor: ball.power === 'normal' ? '#ef4444' : '#3b82f6'
+            }}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+          />
+        ))}
+
+        {/* Enhanced Cannon Design */}
+        <div 
+          className={`absolute bottom-0 transition-all duration-200 ${
+            isOverheated ? 'bg-red-600' : 'bg-gray-800'
+          } rounded-t-full`}
+          style={{
+            width: cannonState.width,
+            height: 60,
+            left: cannonState.x,
+            transformOrigin: 'bottom center',
+            transform: `rotate(${cannonState.angle}deg)`
+          }}
+        >
+          {/* Cannon Barrel */}
+          <div 
+            className={`absolute rounded-lg transition-all duration-200 ${
+              isOverheated ? 'bg-red-700' : 'bg-gray-700'
+            }`}
+            style={{
+              width: 20,
+              height: 40,
+              top: -40,
+              left: cannonState.width / 2 - 10,
+              transformOrigin: 'bottom center',
+              transform: `rotate(${-cannonState.angle}deg)`
+            }}
+          />
+          
+          {/* Heat Vents */}
+          {isOverheated && (
+            <>
+              <motion.div
+                className="absolute -top-2 left-4 w-2 h-4 bg-orange-500"
+                animate={{ height: [4, 8, 4], opacity: [1, 0.5, 1] }}
+                transition={{ duration: 0.5, repeat: Infinity }}
+              />
+              <motion.div
+                className="absolute -top-2 right-4 w-2 h-4 bg-orange-500"
+                animate={{ height: [4, 8, 4], opacity: [1, 0.5, 1] }}
+                transition={{ duration: 0.5, repeat: Infinity, delay: 0.25 }}
+              />
+            </>
+          )}
+        </div>
+
+        {/* Shield Effect */}
+        {hasShield && (
+          <motion.div
+            className="absolute bottom-0 w-full h-20 bg-blue-500 bg-opacity-20 rounded-t-full"
+            animate={{ opacity: [0.2, 0.4, 0.2] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+        )}
+
+        {/* Game Over Screen */}
+        {(gameState.timeLeft === 0 || gameState.lives <= 0) && (
+          <div className="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center">
+            <h2 className="text-4xl text-white mb-4 font-bold">Game Over!</h2>
+            <p className="text-2xl text-white mb-2">Final Score: {Math.round(gameState.score)}</p>
+            {gameState.score > gameState.highScore && (
+              <p className="text-xl text-yellow-400 mb-6">New High Score!</p>
+            )}
+            <button 
+              onClick={restartGame}
+              className="bg-blue-500 text-white px-6 py-3 rounded-full hover:bg-blue-600 transition-colors"
+            >
+              Play Again
+            </button>
+          </div>
+        )}
+
+        {/* Tutorial Overlay (shown on first play) */}
+        {!localStorage.getItem('techCannonTutorialSeen') && (
+          <div className="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center text-white p-8">
+            <h3 className="text-2xl font-bold mb-4">How to Play</h3>
+            <ul className="space-y-2 text-lg mb-6">
+              <li>• Move mouse to aim the cannon</li>
+              <li>• Click to shoot falling tech icons</li>
+              <li>• Build combos for higher scores</li>
+              <li>• Watch your cannon heat level</li>
+              <li>• Collect power-ups for special abilities</li>
+            </ul>
+            <button 
+              onClick={() => {
+                localStorage.setItem('techCannonTutorialSeen', 'true');
+                restartGame();
+              }}
+              className="bg-blue-500 text-white px-6 py-3 rounded-full hover:bg-blue-600 transition-colors"
+            >
+              Start Playing
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Game Stats and Controls */}
+      <div className="w-[400px] p-4 bg-gray-800 rounded-lg text-white">
+        <h3 className="text-lg font-bold mb-2">Power-ups</h3>
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div>🛡️ Shield: Temporary protection</div>
+          <div>🎯 Multi-shot: Triple projectiles</div>
+          <div>❄️ Freeze: Slows falling icons</div>
+          <div>⚡ Speed boost: Faster shooting</div>
+        </div>
       </div>
     </div>
   );
