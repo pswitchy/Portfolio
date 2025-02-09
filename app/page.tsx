@@ -16,35 +16,42 @@ const projects = [
     description: "A modern, feature-rich calendar application built with Next.js 14, TypeScript, and Prisma.",
     link: "https://calendar-app-ochre-xi.vercel.app/",
     tags: ["Next.js", "TypeScript", "Prisma"],
-    image: "/calendar-app.png"
+    image: "/calendar-app.jpg"
   },
   {
     title: "Real-Time Chat Application",
     description: "A feature-rich real-time chat application built with Django, Channels, and modern frontend technologies.",
     link: "https://github.com/pswitchy/ChatApp",
     tags: ["Django", "Channels", "WebSocket"],
-    image: "/chat-app.png"
+    image: "/chat-app.jpg"
   },
   {
     title: "Mentorship Matching App",
     description: "A full-stack Mentorship Matching Platform built with Next.js 14, Prisma, NextAuth, Pusher, and Cloudinary.",
     link: "https://mentorship-matching-platform-zeta.vercel.app/",
     tags: ["Next.js", "Prisma", "NextAuth"],
-    image: "/mentorship-app.png"
+    image: "/mentorship-app.jpg"
   },
   {
     title: "File Encryptor",
     description: "A command-line tool to encrypt and decrypt files using AES-256-GCM with best practices for key derivation and authenticated encryption.",
     link: "https://github.com/pswitchy/File-Encryptor",
-    tags: ["Python", "Cryptography", "CLI"],
-    image: "/encryptor.png"
+    tags: ["Rust", "Cryptography", "CLI"],
+    image: "/encryptor.jpg"
+  },
+  {
+    title: "Url Shortener",
+    description: "A modern and vibrant URL shortening service built with Next.js, TypeScript, and Tailwind CSS.",
+    link: "https://url-shortener-hazel-three.vercel.app/",
+    tags: ["Next.js", "TypeScript", "PostgreSQL"],
+    image: "/url-shortener.jpg"
   },
 ]
 
 const skills = [
   { category: "Frontend", items: ["React", "Next.js", "TypeScript", "Tailwind CSS"] },
-  { category: "Backend", items: ["Node.js", "Python", "Django", "Express"] },
-  { category: "Database", items: ["PostgreSQL", "MongoDB", "Redis", "Prisma"] },
+  { category: "Backend", items: ["Node.js", "Python", "Django", "Express", "Rust"] },
+  { category: "Database", items: ["PostgreSQL", "MongoDB", "Redis", "Prisma", "MySQL"] },
   { category: "DevOps", items: ["Docker", "AWS", "CI/CD", "Git"] },
 ]
 
